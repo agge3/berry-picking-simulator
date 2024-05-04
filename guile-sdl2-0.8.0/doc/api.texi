@@ -1,0 +1,1732 @@
+@menu
+* Basics::                      Initialization and other basic things.
+* Window Management::           Working with the window system.
+* Input::                       Keyboard, mouse, joystick input.
+* Events::                      Asynchronous event handling.
+* Rects::                       2D rectangles.
+* Surfaces::                    Software rendering.
+* Rendering::                   Hardware accelerated rendering.
+* Blend Modes::                 Color blending.
+* Images::                      Loading and saving images.
+* Sound::                       Sound effects and music.
+* Fonts::                       Truetype and bitmap font rendering.
+* Hints::                       Getting and setting configuration hints.
+@end menu
+
+@node Basics
+@section Basics
+
+@example
+(use-modules (sdl2))
+@end example
+
+@deffn {Procedure} sdl-init [@var{subsystems}]
+Initialize the SDL library.  This must be called before using any
+other SDL procedure.
+
+@var{subsystems} is an optional list of symbols that specifies the
+subsystems to initialize.  All subsystems are initialized by default.
+The possible flags are @code{timer}, @code{audio}, @code{video},
+@code{haptic}, @code{game-controller}, and @code{events}.
+@end deffn
+
+@deffn {Procedure} sdl-quit
+Quit all activated SDL subsystems.  This procedure should be called
+upon all exit conditions.
+@end deffn
+
+@deffn {Procedure} sdl-version
+Return a three element list containing the major, minor, and patch
+version of the linked SDL library.
+@end deffn
+
+@deffn {Procedure} sdl-ticks
+Return the number of milliseconds since the SDL library was
+initialized.
+@end deffn
+
+@deffn {Procedure} sdl-performance-counter
+Return the current value of the high resolution counter.
+@end deffn
+
+@deffn {Procedure} sdl-performance-frequency
+Return the count per second of the high resolution counter.
+@end deffn
+
+@node Window Management
+@section Window Management
+
+@menu
+* Windows::                     Window manipulation.
+* OpenGL::                      OpenGL contexts.
+@end menu
+
+@example
+(use-modules (sdl2 video))
+@end example
+
+@node Windows
+@subsection Windows
+
+@deffn {Procedure} make-window [#:title "Guile SDL2 Window"] @
+                          [#:position (#f #f)] @
+                          [#:size (640 480)] @
+                          [#:maximize? #f] @
+                          [#:minimize? #f] @
+                          [#:opengl? #f] @
+                          [#:border? #t] @
+                          [#:fullscreen? #f] @
+                          [#:fullscreen-desktop? #f] @
+                          [#:grab-input? #f] @
+                          [#:high-dpi? #f]
+Create a new window named @var{title} with dimensions @var{size} located
+at @var{position} on the display.  @var{position} and @var{size} are
+two-element lists in the form @code{(x y)}, where each coordinate is
+measured in pixels.  In the case of @var{position}, a coordinate may use
+the special symbol @var{center} to indicate that the window should be
+centered on that axis, or @code{#f} to indicate that it does not matter
+where the window is located on that axis.
+@end deffn
+
+@deffn {Procedure} close-window! window
+Close @var{window}.
+@end deffn
+
+@deffn {Procedure} call-with-window window proc
+Call @var{proc} with @var{window}, an SDL window object, and close it
+when @var{proc} returns or otherwise exits.
+@end deffn
+
+@deffn {Procedure} window-title window
+Return the title for @var{window}.
+@end deffn
+
+@deffn {Procedure} window-size window
+Return 2 values for the dimensions of @var{window}.
+@end deffn
+
+@deffn {Procedure} window-minimum-size window
+Return 2 values for the minimal dimensions that @var{window} can be.
+Note that SDL does not always enforce this restriction, so you might
+end up with a window size that is actually smaller than the value
+returned by this procedure.
+@end deffn
+
+@deffn {Procedure} window-maximum-size window
+Return 2 values for the maximum dimensions that @var{window} can be.
+@end deffn
+
+@deffn {Procedure} window-position window
+Return 2 values for the position of @var{window} on the display.
+@end deffn
+
+@deffn {Procedure} window-id window
+Return the numeric ID of @var{window}.
+@end deffn
+
+@deffn {Procedure} id->window id
+Return the window corresponding to @var{ID}, a positive integer, or
+@code{#f} if there is no such window.
+@end deffn
+
+@deffn {Procedure} hide-window! window
+Hide @var{window}.
+@end deffn
+
+@deffn {Procedure} show-window! window
+Show @var{window} and focus on it.
+@end deffn
+
+@deffn {Procedure} maximize-window! window
+Make @var{window} as large as possible.
+@end deffn
+
+@deffn {Procedure} minimize-window! window
+Shrink @var{window} to an iconic representation.
+@end deffn
+
+@deffn {Procedure} raise-window! window
+Raise @var{window} above all other windows and set input focus.
+@end deffn
+
+@deffn {Procedure} restore-window! window
+Restore the size and position of a minimized or maximized @var{window}.
+@end deffn
+
+@deffn {Procedure} set-window-border! window border?
+When @var{border?}, draw the usual border around @var{window}, otherwise
+remove the border.
+@end deffn
+
+@deffn {Procedure} set-window-title! window title
+Set the title of @var{window} to the string @var{title}.
+@end deffn
+
+@deffn {Procedure} set-window-icon! window icon
+Set the icon of @var{window} to the surface @var{icon}.
+@end deffn
+
+@deffn {Procedure} set-window-position! window x y
+Set the position of @var{window} to (@var{x}, @var{y}).
+@end deffn
+
+@deffn {Procedure} set-window-size! window width height
+Set the dimensions of @var{window} to @var{width} x @var{height}
+pixels.
+@end deffn
+
+@deffn {Procedure} set-window-minimum-size! window width height
+Set the minimum dimensions of @var{window} to @var{width} x
+@var{height} pixels.
+@end deffn
+
+@deffn {Procedure} set-window-maximum-size! window width height
+Set the maximum dimensions of @var{window} to @var{width} x
+@var{height} pixels.
+@end deffn
+
+@deffn {Procedure} set-window-resizable! window resizable?
+If @var{resizable} is @code{#t}, allow @var{window} to be resized,
+otherwise disable resizing.
+@end deffn
+
+@deffn {Procedure} set-window-fullscreen! window fullscreen? [#:desktop?]
+Toggle fullscreen mode on/off for @var{window}.  If @var{fullscreen?},
+fullscreen mode is activated, otherwise it is deactivated.  If
+@var{fullscreen?} and @var{desktop?}, a special "fake" fullscreen mode
+is used that takes the size of the desktop.
+@end deffn
+
+@node OpenGL
+@subsection OpenGL
+
+@deffn {Procedure} make-gl-context window
+Create an OpenGL context for @var{window}.
+@end deffn
+
+@deffn {Procedure} delete-gl-context! context
+Delete @var{context}, an OpenGL context object.
+@end deffn
+
+@deffn {Procedure} call-with-gl-context window proc
+Call @var{proc} with a new OpenGL context created for @var{window}, and
+close the context when @var{proc} returns or otherwise exits.
+@end deffn
+
+@deffn {Procedure} swap-gl-window window
+Update @var{window} with OpenGL rendering.
+@end deffn
+
+@deffn {Procedure} set-gl-attribute! attr value
+Set the OpenGL attribute represented by the symbol @var{attr} to
+@var{value}.  Possible values for @var{attr} are:
+
+@itemize
+@item @code{red-size}
+@item @code{green-size}
+@item @code{blue-size}
+@item @code{alpha-size}
+@item @code{buffer-size}
+@item @code{double-buffer}
+@item @code{depth-size}
+@item @code{stencil-size}
+@item @code{accum-red-size}
+@item @code{accum-green-size}
+@item @code{accum-blue-size}
+@item @code{stereo}
+@item @code{multisample-buffers}
+@item @code{multisample-samples}
+@item @code{retained-backing}
+@item @code{context-major-version}
+@item @code{context-minor-version}
+@item @code{context-egl}
+@item @code{context-flags}
+@item @code{context-profile-mask}
+@item @code{share-with-current-context}
+@item @code{framebuffer-srgb-capable}
+@end itemize
+
+@end deffn
+
+@deffn {Procedure} set-gl-swap-interval! interval
+Set the framebuffer swap interval for the current OpenGL context to the
+type indicated by the symbol @var{interval}.  Possible values of
+@var{interval} are:
+
+@itemize
+@item @code{immediate}, for immediate updates
+@item @code{vsync}, for updates synchronized with the screen's vertical retrace
+@item @code{late-swap-tear}, for late swap tearing
+@end itemize
+
+Late swap tearing works the same as vsync, but if the vertical retrace
+has been missed for a given frame, buffers are swapped immediately,
+which might be less jarring for the user during occasional framerate
+drops.
+@end deffn
+
+@node Input
+@section Input
+
+@menu
+* Keyboard::                    Keyboard input.
+* Mouse::                       Mouse input.
+* Joysticks::                   Joystick input.
+* Game Controllers::            Game controller input.
+@end menu
+
+@node Keyboard
+@subsection Keyboard
+
+@example
+(use-modules (sdl2 input keyboard))
+@end example
+
+@deffn {Procedure} key-pressed? key
+Return @code{#t} if @var{key} is currently being pressed.
+@end deffn
+
+@deffn {Procedure} key-released? key
+Return @code{#t} is @var{key} is not currently being pressed.
+@end deffn
+
+@node Mouse
+@subsection Mouse
+
+@example
+(use-modules (sdl2 input mouse))
+@end example
+
+@deffn {Procedure} mouse-x
+Return the x coordinate of the mouse cursor.
+@end deffn
+
+@deffn {Procedure} mouse-y
+Return the y coordinate of the mouse cursor.
+@end deffn
+
+@deffn {Procedure} mouse-button-pressed? button
+Return @code{#t} if @var{button} is currently being pressed.
+@end deffn
+
+@deffn {Procedure} mouse-button-released? button
+Return @code{#t} if @var{button} is not currently being pressed.
+@end deffn
+
+@deffn {Procedure} make-system-cursor cursor-type
+Create a new cursor from the system's available set, chosen by
+@var{cursor-type}.  The possible values for @var{cursor-type} are:
+
+@itemize
+@item @code{arrow}
+@item @code{crosshair}
+@item @code{hand}
+@item @code{i-beam}
+@item @code{size-north-south}
+@item @code{size-northwest-southeast}
+@item @code{size-northeast-southwest}
+@item @code{size-west-east}
+@item @code{size-all}
+@item @code{no}
+@item @code{wait}
+@item @code{wait-arrow}
+@end itemize
+
+@end deffn
+
+@deffn {Procedure} make-color-cursor surface hot-x hot-y
+Create a new cursor from a surface and the given hotspot coordinates
+(@var{hot-x}, @var{hot-y}).
+@end deffn
+
+@deffn {Procedure} get-cursor
+Return the cursor currently in use. The returned cursor object is
+internally managed and it's not necessary to call
+@code{delete-cursor!} for it.
+@end deffn
+
+@deffn {Procedure} set-cursor! cursor
+Set the current cursor to @var{cursor}.  If @var{cursor} is @code{#f},
+the system default cursor is restored.
+@end deffn
+
+@deffn {Procedure} delete-cursor! cursor
+Free the memory used by @var{cursor}.  Be careful!
+@end deffn
+
+@node Joysticks
+@subsection Joysticks
+
+@example
+(use-modules (sdl2 input joystick))
+@end example
+
+@deffn {Procedure} num-joysticks
+Return the current number of connected joystick devices.
+@end deffn
+
+@deffn {Procedure} open-joystick device-index
+Return a joystick object for the physical joystick device associated
+with @var{device-index}.
+@end deffn
+
+@deffn {Procedure} close-joystick joystick
+Close @var{joystick}.
+@end deffn
+
+@deffn {Procedure} joystick-instance-id joystick
+Return the instance id of @var{joystick}.
+@end deffn
+
+@deffn {Procedure} joystick-power-level joystick
+Return the symbolic battery power level for @var{joystick}, either
+@code{unknown}, @code{empty}, @code{low}, @code{medium}, @code{full},
+or @code{wired}.
+@end deffn
+
+@deffn {Procedure} joystick-num-axes joystick
+Return the number of axes for @var{joystick}.
+@end deffn
+
+@deffn {Procedure} joystick-num-balls joystick
+Return the number of balls for @var{joystick}.
+@end deffn
+
+@deffn {Procedure} joystick-num-buttons joystick
+Return the number of buttons for @var{joystick}.
+@end deffn
+
+@deffn {Procedure} joystick-num-hats joystick
+Return the number of hats for @var{joystick}.
+@end deffn
+
+@node Game Controllers
+@subsection Game Controllers
+
+@example
+(use-modules (sdl2 input game-controller))
+@end example
+
+@deffn {Procedure} load-game-controller-mappings! file
+Load game controller mapping from @var{file} and return the number of
+mappings added this way.
+
+See @url{https://raw.github.com/gabomdq/SDL_GameControllerDB/master/gamecontrollerdb.txt}
+for a community maintained controller mapping file.
+@end deffn
+
+@deffn {Procedure} open-game-controller joystick-index
+Return a game controller object for the physical joystick device associated
+with the @var{joystick-index}.
+@end deffn
+
+@deffn {Procedure} close-game-controller controller
+Close @var{controller}.
+@end deffn
+
+@deffn {Procedure} game-controller? controller
+Close @var{controller}.
+@end deffn
+
+@deffn {Procedure} game-controller-attached? controller
+Return @code{#t} if @var{controller} is currently in use.
+@end deffn
+
+@deffn {Procedure} game-controller-joystick controller
+Return the underlying joystick object associated with @var{controller}.
+@end deffn
+
+@deffn {Procedure} game-controller-name controller
+Return the human readable name for @var{controller}.
+@end deffn
+
+@deffn {Procedure} game-controller-axis controller axis
+Return a number in the range [-32768, 32767] representing the
+current state of @var{axis} on @var{controller}.
+
+@var{axis} may be one of the following symbols:
+@itemize
+@item @code{left-x}
+@item @code{left-y}
+@item @code{right-x}
+@item @code{right-y}
+@item @code{trigger-left}
+@item @code{trigger-right}
+@end itemize
+@end deffn
+
+@deffn {Procedure} game-controller-button-pressed? controller button
+Return @code{#t} if @var{button} is pressed on @var{controller}.
+
+@var{button} may be one of the following symbols:
+@itemize
+@item @code{a}
+@item @code{b}
+@item @code{x}
+@item @code{y}
+@item @code{back}
+@item @code{guide}
+@item @code{start}
+@item @code{left-stick}
+@item @code{right-stick}
+@item @code{left-shoulder}
+@item @code{right-shoulder}
+@item @code{dpad-up}
+@item @code{dpad-down}
+@item @code{dpad-left}
+@item @code{dpad-right}
+@end itemize
+@end deffn
+
+@deffn {Procedure} game-controller-index? joystick-index
+Return @code{#t} if @var{joystick-index} is a valid game controller index.
+@end deffn
+
+@node Events
+@section Events
+
+@example
+(use-modules (sdl2 events))
+@end example
+
+@deffn {Procedure} make-quit-event timestamp
+@end deffn
+
+@deffn {Procedure} quit-event? e
+Return @code{#t} if @var{e} is a quit event.
+@end deffn
+
+@deffn {Procedure} quit-event-timestamp e
+@end deffn
+
+@deffn {Procedure} make-window-event timestamp window-id type vector
+@end deffn
+
+@deffn {Procedure} window-event? e
+Return @code{#t} if @var{e} is a window event.
+@end deffn
+
+@deffn {Procedure} window-shown-event? e
+Return @code{#t} if @var{e} is a window shown event.
+@end deffn
+
+@deffn {Procedure} window-hidden-event? e
+Return @code{#t} if @var{e} is a window hidden event.
+@end deffn
+
+@deffn {Procedure} window-exposed-event? e
+Return @code{#t} if @var{e} is a window exposed event.
+@end deffn
+
+@deffn {Procedure} window-moved-event? e
+Return @code{#t} if @var{e} is a window moved event.
+@end deffn
+
+@deffn {Procedure} window-resized-event? e
+Return @code{#t} if @var{e} is a window resized event.
+@end deffn
+
+@deffn {Procedure} window-size-changed-event? e
+Return @code{#t} if @var{e} is a window size changed event.
+@end deffn
+
+@deffn {Procedure} window-minimized-event? e
+Return @code{#t} if @var{e} is a window minimized event.
+@end deffn
+
+@deffn {Procedure} window-maximized-event? e
+Return @code{#t} if @var{e} is a window maximized event.
+@end deffn
+
+@deffn {Procedure} window-restored-event? e
+Return @code{#t} if @var{e} is a window restored event.
+@end deffn
+
+@deffn {Procedure} window-enter-event? e
+Return @code{#t} if @var{e} is a window enter event.
+@end deffn
+
+@deffn {Procedure} window-leave-event? e
+Return @code{#t} if @var{e} is a window leave event.
+@end deffn
+
+@deffn {Procedure} window-focus-gained-event? e
+Return @code{#t} if @var{e} is a window focus gained event.
+@end deffn
+
+@deffn {Procedure} window-focus-lost-event? e
+Return @code{#t} if @var{e} is a window focus lost event.
+@end deffn
+
+@deffn {Procedure} window-closed-event? e
+Return @code{#t} if @var{e} is a window closed event.
+@end deffn
+
+@deffn {Procedure} window-event-timestamp e
+@end deffn
+
+@deffn {Procedure} window-event-window-id e
+@end deffn
+
+@deffn {Procedure} window-event-type e
+@end deffn
+
+@deffn {Procedure} window-event-vector e
+@end deffn
+
+@deffn {Procedure} make-keyboard-event timestamp @
+                                              window-id @
+                                              pressed? @
+                                              repeat? @
+                                              key @
+                                              scancode @
+                                              modifiers
+@end deffn
+
+@deffn {Procedure} keyboard-event? e
+Return @code{#t} if @var{e} is a keyboard event.
+@end deffn
+
+@deffn {Procedure} keyboard-down-event? e
+Return @code{#t} if @var{e} is a key press event.
+@end deffn
+
+@deffn {Procedure} keyboard-up-event? e
+Return @code{#t} if @var{e} is a key release event.
+@end deffn
+
+@deffn {Procedure} keyboard-event-timestamp e
+@end deffn
+
+@deffn {Procedure} keyboard-event-window-id e
+@end deffn
+
+@deffn {Procedure} keyboard-event-pressed? e
+@end deffn
+
+@deffn {Procedure} keyboard-event-repeat? e
+@end deffn
+
+@deffn {Procedure} keyboard-event-key e
+@end deffn
+
+@deffn {Procedure} keyboard-event-scancode e
+@end deffn
+
+@deffn {Procedure} keyboard-event-modifiers e
+@end deffn
+
+@deffn {Procedure} make-text-input-event timestamp window-id text
+@end deffn
+
+@deffn {Procedure} text-input-event? e
+Return @code{#t} if @var{e} is a text input event.
+@end deffn
+
+@deffn {Procedure} text-input-event-timestamp e
+@end deffn
+
+@deffn {Procedure} text-input-event-window-id e
+@end deffn
+
+@deffn {Procedure} text-input-event-text e
+@end deffn
+
+@deffn {Procedure} make-mouse-button-event timestamp @
+                                                  window-id @
+                                                  which @
+                                                  button @
+                                                  pressed? @
+                                                  clicks @
+                                                  x @
+                                                  y
+@end deffn
+
+@deffn {Procedure} mouse-button-event? e
+Return @code{#t} if @var{e} is a mouse button event.
+@end deffn
+
+@deffn {Procedure} mouse-button-down-event? e
+Return @code{#t} if @var{e} is a mouse button down event.
+@end deffn
+
+@deffn {Procedure} mouse-button-up-event? e
+Return @code{#t} if @var{e} is a mouse button up event.
+@end deffn
+
+@deffn {Procedure} mouse-button-event-timestamp e
+@end deffn
+
+@deffn {Procedure} mouse-button-event-window-id e
+@end deffn
+
+@deffn {Procedure} mouse-button-event-which e
+@end deffn
+
+@deffn {Procedure} mouse-button-event-button e
+@end deffn
+
+@deffn {Procedure} mouse-button-event-pressed? e
+@end deffn
+
+@deffn {Procedure} mouse-button-event-clicks e
+@end deffn
+
+@deffn {Procedure} mouse-button-event-x e
+@end deffn
+
+@deffn {Procedure} mouse-button-event-y e
+@end deffn
+
+@deffn {Procedure} make-mouse-motion-event timestamp @
+                                                  window-id @
+                                                  which @
+                                                  buttons @
+                                                  x @
+                                                  y @
+                                                  x-rel @
+                                                  y-rel
+@end deffn
+
+@deffn {Procedure} mouse-motion-event? e
+Return @code{#t} if @var{e} is a mouse motion event.
+@end deffn
+
+@deffn {Procedure} mouse-motion-event-timestamp e
+@end deffn
+
+@deffn {Procedure} mouse-motion-event-window-id e
+@end deffn
+
+@deffn {Procedure} mouse-motion-event-which e
+@end deffn
+
+@deffn {Procedure} mouse-motion-event-buttons e
+@end deffn
+
+@deffn {Procedure} mouse-motion-event-x e
+@end deffn
+
+@deffn {Procedure} mouse-motion-event-y e
+@end deffn
+
+@deffn {Procedure} mouse-motion-event-x-rel e
+@end deffn
+
+@deffn {Procedure} mouse-motion-event-y-rel e
+@end deffn
+
+@deffn {Procedure} make-joystick-axis-event timestamp which axis value
+@end deffn
+
+@deffn {Procedure} joystick-axis-event? e
+Return @code{#t} if @var{e} is a joystick axis event.
+@end deffn
+
+@deffn {Procedure} joystick-axis-event-timestamp e
+@end deffn
+
+@deffn {Procedure} joystick-axis-event-which e
+@end deffn
+
+@deffn {Procedure} joystick-axis-event-button e
+@end deffn
+
+@deffn {Procedure} joystick-axis-event-pressed? e
+@end deffn
+
+@deffn {Procedure} make-joystick-ball-event timestamp @
+                                                   which @
+                                                   ball @
+                                                   x-rel @
+                                                   y-rel
+@end deffn
+
+@deffn {Procedure} joystick-ball-event? e
+Return @code{#t} if @var{e} is a joystick ball event.
+@end deffn
+
+@deffn {Procedure} joystick-ball-event-timestamp e
+@end deffn
+
+@deffn {Procedure} joystick-ball-event-which e
+@end deffn
+
+@deffn {Procedure} joystick-ball-event-ball e
+@end deffn
+
+@deffn {Procedure} joystick-ball-event-x-rel e
+@end deffn
+
+@deffn {Procedure} joystick-ball-event-y-rel e
+@end deffn
+
+@deffn {Procedure} make-joystick-hat-event timestamp which hat value
+@end deffn
+
+@deffn {Procedure} joystick-hat-event? e
+Return @code{#t} if @var{e} is a joystick hat event.
+@end deffn
+
+@deffn {Procedure} joystick-hat-event-timestamp e
+@end deffn
+
+@deffn {Procedure} joystick-hat-event-which e
+@end deffn
+
+@deffn {Procedure} joystick-hat-event-hat e
+@end deffn
+
+@deffn {Procedure} joystick-hat-event-value e
+@end deffn
+
+@deffn {Procedure} make-joystick-device-event timestamp which action
+@end deffn
+
+@deffn {Procedure} joystick-device-event? e
+Return @code{#t} if @var{e} is a joystick device event.
+@end deffn
+
+@deffn {Procedure} joystick-device-event-timestamp e
+@end deffn
+
+@deffn {Procedure} joystick-device-event-which e
+@end deffn
+
+@deffn {Procedure} joystick-device-event-action e
+@end deffn
+
+@deffn {Procedure} make-controller-axis-event timestamp which axis value
+@end deffn
+
+@deffn {Procedure} controller-axis-event? e
+Return @code{#t} if @var{e} is a game controller axis event.
+@end deffn
+
+@deffn {Procedure} controller-axis-event-timestamp e
+@end deffn
+
+@deffn {Procedure} controller-axis-event-which e
+@end deffn
+
+@deffn {Procedure} controller-axis-event-axis e
+@end deffn
+
+@deffn {Procedure} controller-axis-event-value e
+@end deffn
+
+@deffn {Procedure} make-controller-button-event timestamp @
+                                                       which @
+                                                       button @
+                                                       pressed?
+@end deffn
+
+@deffn {Procedure} controller-button-event? e
+Return @code{#t} if @var{event} is a game controller button event.
+@end deffn
+
+@deffn {Procedure} controller-button-down-event? e
+@end deffn
+
+@deffn {Procedure} controller-button-up-event? e
+@end deffn
+
+@deffn {Procedure} controller-button-event-timestamp e
+@end deffn
+
+@deffn {Procedure} controller-button-event-which e
+@end deffn
+
+@deffn {Procedure} controller-button-event-button e
+@end deffn
+
+@deffn {Procedure} controller-button-event-pressed? e
+@end deffn
+
+@deffn {Procedure} make-controller-device-event timestamp which action
+@end deffn
+
+@deffn {Procedure} controller-device-event? e
+Return @code{#t} if @var{event} is a game controller device event.
+@end deffn
+
+@deffn {Procedure} controller-added-event? e
+Return @code{#t} if @var{event} is a game controller device event with the
+'added' action.
+@end deffn
+
+@deffn {Procedure} controller-removed-event? e
+Return @code{#t} if @var{event} is a game controller device event with the
+'removed' action.
+@end deffn
+
+@deffn {Procedure} controller-remapped-event? e
+Return @code{#t} if @var{event} is a game controller device event with the
+'remapped' action.
+@end deffn
+
+@deffn {Procedure} controller-device-event-timestamp e
+@end deffn
+
+@deffn {Procedure} controller-device-event-which e
+@end deffn
+
+@deffn {Procedure} controller-device-event-action e
+@end deffn
+
+@deffn {Procedure} poll-event
+@end deffn
+
+@node Rects
+@section Rects
+
+@example
+(use-modules (sdl2 rect))
+@end example
+
+@deffn {Procedure} make-rect @var{x} @var{y} @var{width} @var{height}
+Return a new rectangle whose upper-left corner is at (@var{x},
+@var{y}) and is @var{width} pixels wide and @var{height} pixels high.
+@end deffn
+
+@deffn {Procedure} rect-x rect
+Return the X coordinate of @var{rect}.
+@end deffn
+
+@deffn {Procedure} rect-y rect
+Return the Y coordinate of @var{rect}.
+@end deffn
+
+@deffn {Procedure} rect-width rect
+Return the width of @var{rect}.
+@end deffn
+
+@deffn {Procedure} rect-height rect
+Return the height of @var{rect}.
+@end deffn
+
+@deffn {Procedure} set-rect-x! rect x
+Set the x coordinate of @var{rect} to @var{x}.
+@end deffn
+
+@deffn {Procedure} set-rect-y! rect y
+Set the y coordinate of @var{rect} to @var{y}.
+@end deffn
+
+@deffn {Procedure} set-rect-width! rect w
+Set the width of @var{rect} to @var{w}.
+@end deffn
+
+@deffn {Procedure} set-rect-height! rect h
+Set the height of @var{rect} to @var{h}.
+@end deffn
+
+@node Surfaces
+@section Surfaces
+
+@example
+(use-modules (sdl2 surface))
+@end example
+
+@deffn {Procedure} color? c
+Return @code{#t} if @var{c} is a color.
+@end deffn
+
+@deffn {Procedure} color-r c
+@end deffn
+
+@deffn {Procedure} color-g c
+@end deffn
+
+@deffn {Procedure} color-b c
+@end deffn
+
+@deffn {Procedure} color-a c
+@end deffn
+
+@deffn {Procedure} palette? p
+Return @code{#t} if @var{p} is a palette.
+@end deffn
+
+@deffn {Procedure} palette-length palette
+Return the number of colors in @var{palette}.
+@end deffn
+
+@deffn {Procedure} palette-colors palette
+Return the colors in @var{palette}.
+@end deffn
+
+@deffn {Procedure} pixel-format? pf
+Return @code{#t} if @var{pf} is a pixel format.
+@end deffn
+
+@deffn {Procedure} pixel-format-name pf
+Return the symbolic name of the pixel format @var{pf}.
+@end deffn
+
+@deffn {Procedure} pixel-format-palette pf
+Return the palette for the pixel format @var{pf}.
+@end deffn
+
+@deffn {Procedure} pixel-format-bits-per-pixel pf
+Return the number of bits per pixel for the pixel format @var{pf}.
+@end deffn
+
+@deffn {Procedure} pixel-format-bytes-per-pixel pf
+Return the number of bytes per pixel for the pixel format @var{pf}.
+@end deffn
+
+@deffn {Procedure} pixel-format-red-mask pf
+Return the bitmask for the red component of a pixel in the pixel format
+@var{pf}.
+@end deffn
+
+@deffn {Procedure} pixel-format-green-mask pf
+Return the bitmask for the green component of a pixel in the pixel format
+@var{pf}.
+@end deffn
+
+@deffn {Procedure} pixel-format-blue-mask pf
+Return the bitmask for the blue component of a pixel in the pixel format
+@var{pf}.
+@end deffn
+
+@deffn {Procedure} pixel-format-alpha-mask pf
+Return the bitmask for the alpha component of a pixel in the pixel format
+@var{pf}.
+@end deffn
+
+@deffn {Procedure} make-rgb-surface width height depth
+Create a new SDL surface with the dimensions @var{width} and @var{height} and
+@var{depth} bits per pixel.
+@end deffn
+
+@deffn {Procedure} bytevector->surface bv width height depth pitch
+Convert @var{bv}, a bytevector of pixel data with dimensions
+@var{width}x@var{height}, to an SDL surface.  Each pixel is @var{depth} bits in
+size, and each row of pixels is @var{pitch} bytes in size.
+@end deffn
+
+@deffn {Procedure} delete-surface! surface
+Free the memory used by @var{surface}.
+@end deffn
+
+@deffn {Procedure} call-with-surface surface proc
+Call @var{proc}, passing it @var{surface} and deleting @var{surface} upon exit
+of @var{proc}.
+@end deffn
+
+@deffn {Procedure} load-bmp file
+Create a new surface from the bitmap data in @var{file}.
+@end deffn
+
+@deffn {Procedure} surface-width surface
+Return the width of @var{surface} in pixels.
+@end deffn
+
+@deffn {Procedure} surface-height surface
+Return the height of @var{surface} in pixels.
+@end deffn
+
+@deffn {Procedure} surface-pitch surface
+Return the length of a row of pixels in @var{surface} in bytes.
+@end deffn
+
+@deffn {Procedure} surface-pixels surface
+Return a bytevector containing the raw pixel data in @var{surface}.
+@end deffn
+
+@deffn {Procedure} surface-pixel-format surface
+Return the pixel format for @var{surface}.
+@end deffn
+
+@deffn {Procedure} convert-surface-format surface format
+Convert the pixels in @var{surface} to @var{format}, a symbol representing a
+specific pixel format, and return a new surface object.
+
+Valid format types are:
+
+@itemize
+@item @code{index1lsb}
+@item @code{index1msb}
+@item @code{index4lsb}
+@item @code{index4msb}
+@item @code{index8}
+@item @code{rgb332}
+@item @code{rgb444}
+@item @code{rgb555}
+@item @code{bgr555}
+@item @code{argb4444}
+@item @code{rgba4444}
+@item @code{abgr4444}
+@item @code{bgra4444}
+@item @code{argb1555}
+@item @code{rgba5551}
+@item @code{abgr1555}
+@item @code{bgra5551}
+@item @code{rgb565}
+@item @code{bgr565}
+@item @code{rgb24}
+@item @code{bgr24}
+@item @code{rgb888}
+@item @code{rgbx8888}
+@item @code{bgr888}
+@item @code{bgrx8888}
+@item @code{argb8888}
+@item @code{rgba8888}
+@item @code{abgr8888}
+@item @code{bgra8888}
+@item @code{argb2101010}
+@item @code{yv12}
+@item @code{iyuv}
+@item @code{yuy2}
+@item @code{uyvy}
+@item @code{yvyu}
+@end itemize
+@end deffn
+
+@deffn {Procedure} blit-surface @var{src} @var{src-rect} @var{dst} @var{dst-rect}
+Blit the rectangle @var{src-rect} from the surface @var{src} to
+@var{dst-rect} of the surface @var{dst}.
+@end deffn
+
+@deffn {Procedure} blit-scaled @var{src} @var{src-rect} @var{dst} @var{dst-rect}
+Blit the rectangle @var{src-rect} from the surface @var{src} to
+@var{dst-rect} of the surface @var{dst}, scaling the source to fit the
+destination.
+@end deffn
+
+@deffn {Procedure} fill-rect @var{dst} @var{rect} @var{color}
+Fill @var{rect} with @var{color}, a 32-bit color encoded as an integer
+value, in the surface @var{dst}.
+@end deffn
+
+@node Rendering
+@section Rendering
+
+@example
+(use-modules (sdl2 render))
+@end example
+
+@deffn {Procedure} make-renderer window @
+                                        [#:optional flags='(accelerated vsync)]
+Return a new renderer for @var{window} created with the options specified
+in @var{flags}, a list of symbols.  The valid symbols that may appear in
+@var{flags} are:
+
+@itemize
+@item software, to use a software renderer fallback
+@item accelerated, to use hardware acceleration
+@item vsync, to synchronize rendering with the monitor's refresh rate
+@item texture, for render to texture support
+@end itemize
+@end deffn
+
+@deffn {Procedure} renderer? r
+Return @code{#t} if @var{r} is a renderer.
+@end deffn
+
+@deffn {Procedure} delete-renderer! renderer
+Delete the rendering context @var{renderer}.
+@end deffn
+
+@deffn {Procedure} call-with-renderer renderer proc
+Call @var{proc}, passing it @var{renderer} and closing @var{renderer} upon exit
+of @var{proc}.
+@end deffn
+
+@deffn {Procedure} clear-renderer renderer
+Clear the rendering target @var{renderer} with the current drawing color.
+@end deffn
+
+@deffn {Procedure} present-renderer renderer
+Display @var{renderer}.
+@end deffn
+
+@deffn {Procedure} renderer-integer-scale renderer
+Returns @code{#t} if @var{renderer} currently uses integer scaling and
+@code{#f} otherwise.  Integer scaling can be used together with
+logical size to effectively restrict the drawing region to an area
+even if the window is larger than that.
+@end deffn
+
+@deffn {Procedure} set-renderer-integer-scale! renderer enable?
+If @var{enable?} is @code{#t}, enable integer scaling, otherwise
+disable it.
+@end deffn
+
+@deffn {Procedure} renderer-logical-size renderer
+Return the current logical size used by @var{renderer}.
+@end deffn
+
+@deffn {Procedure} set-renderer-logical-size! renderer width height
+Set the logical size of @var{renderer} to @var{width} x @var{height}.
+@end deffn
+
+@deffn {Procedure} renderer-scale renderer
+Return the scaling factors @code{(X Y)} used by @var{renderer} to
+scale coordinates.
+@end deffn
+
+@deffn {Procedure} set-renderer-scale! renderer scale-x scale-y
+Set the factors by which @var{renderer} scales coordinates according
+to the scaling factors @var{scale-x} and @var{scale-y}.
+@end deffn
+
+@deffn {Procedure} renderer-viewport renderer
+Return the rectangle that @var{renderer} currently draws on.  If the
+entire region is used, all values of that rectangle will be 0.
+@end deffn
+
+@deffn {Procedure} set-renderer-viewport! renderer rect
+Set the drawing area for @var{renderer} to @var{rect}.
+@end deffn
+
+@deffn {Procedure} render-copy renderer @
+                                      texture @
+                                      [#:angle 0] @
+                                      [#:srcrect] @
+                                      [#:dstrect] @
+                                      [#:center]
+Copy @var{texture} to the rendering target of @var{renderer}.
+@end deffn
+
+@deffn {Procedure} set-renderer-draw-color! renderer r g b a
+Set color of @var{renderer} to the 32-bit color defined by the 8-bit
+color channels @var{r}, @var{g}, @var{b}, @var{a}.  Each color channel
+value is in the range [0, 255].
+@end deffn
+
+@deffn {Procedure} set-renderer-draw-blend-mode! renderer blend-mode
+Set blend mode of @var{renderer} to @var{blend-mode}. @xref{Blend
+Modes} for more information.
+@end deffn
+
+@deffn {Procedure} set-renderer-target! renderer texture
+Sets the render target for @var{renderer} to @var{texture}, making all
+comming draw requests redirect to @var{texture}.
+
+Pass @code{#f} to reset it to the default target.
+@end deffn
+
+@deffn {Procedure} renderer-target renderer
+Returns the current render target of @var{renderer} or @code{#f} if
+it's a texture.
+@end deffn
+
+@deffn {Procedure} draw-line renderer x1 y1 x2 y2
+Draw a line from (@var{x1}, @var{y1}) to (@var{x2}, @var{y2}) on the
+current rendering target of @var{renderer}.
+@end deffn
+
+@deffn {Procedure} draw-lines renderer points
+Draw a series of connected lines from @var{points} on the current
+rendering target of @var{renderer}.  Optionally, for best performance,
+@var{points} may instead be a bytevector packed with signed 32 bit
+integers, 2 per point (x and y).
+@end deffn
+
+@deffn {Procedure} draw-point renderer x y
+Draw a point at (@var{x}, @var{y}) on the current rendering target
+of @var{renderer}.
+@end deffn
+
+@deffn {Procedure} draw-points renderer points
+Draw a multiple points from @var{points} on the current rendering
+target of @var{renderer}.  Optionally, for best performance,
+@var{points} may instead be a bytevector packed with signed 32 bit
+integers, 2 per point (x and y).
+@end deffn
+
+@deffn {Procedure} draw-rect renderer rectangle
+Draw the outline of @var{rectangle} onto renderer.
+@end deffn
+
+@deffn {Procedure} draw-rects renderer rects
+Draw the outline of all rects in the list @var{rects} onto
+@var{renderer}.  Optionally, for best performance, @var{rects} may
+instead be a bytevector packed with signed 32 bit integers, 4 per rect
+(x, y, width, height).
+@end deffn
+
+@deffn {Procedure} fill-rect renderer rectangle
+Fill @var{rectangle} onto @var{renderer}.
+@end deffn
+
+@deffn {Procedure} fill-rects renderer rects
+Fill the list @var{rects} onto @var{renderer}.  Optionally, for best
+performance, @var{rects} may instead be a bytevector packed with
+signed 32 bit integers, 4 per rect (x, y, width, height).
+@end deffn
+
+@deffn {Procedure} make-texture renderer format access width height
+Returns a new texture for @var{renderer} with pixel @var{format}.
+@var{access} is one of the symbols:
+
+@itemize
+@item static, changes rarely, not lockable
+@item streaming, changes frequently, lockable
+@item target, can be used as a render target
+requires that renderer was created with the @code{texture} flag.
+@end itemize
+@end deffn
+
+@deffn {Procedure} query-texture texture
+Return 4 values for the format, access, width and height of a texture.
+@end deffn
+
+@deffn {Procedure} surface->texture renderer surface
+Convert @var{surface} to a texture suitable for @var{renderer}.
+@end deffn
+
+@deffn {Procedure} delete-texture! texture
+Free the memory used by @var{texture}.
+@end deffn
+
+@deffn {Procedure} update-texture texture rect pixels pitch
+Update the subsection of @var{texture} defined by @var{rect} with new
+pixel data in the @var{pixels} bytevector.  @var{pitch} represents the
+number of bytes in a row of pixel data, including any padding between
+rows.  This is a fairly slow process: Better to use the lock/unlock
+mechanism in streaming textures.
+@end deffn
+
+@deffn {Procedure} texture-color-mod texture
+Get color mod of @var{texture} as a list of the integers.
+@end deffn
+
+@deffn {Procedure} texture-alpha-mod texture
+Get alpha mod of @var{texture} as a single integer.
+@end deffn
+
+@deffn {Procedure} set-texture-color-mod! texture r g b
+Set the color mod of @var{texture}.
+@end deffn
+
+@deffn {Procedure} set-texture-alpha-mod! texture a
+Set the alpha mod of @var{texture}.
+@end deffn
+
+@deffn {Procedure} set-texture-blend-mode! texture blend-mode
+Set the blend of @var{texture} to @var{blend-mode}.  @xref{Blend
+Modes} for more information.
+@end deffn
+
+@node Blend Modes
+@section Blend Modes
+
+@example
+(use-modules (sdl2 blend-mode))
+@end example
+
+SDL2 provides several of the most commonly used blend modes:
+
+@defvar none
+No blending.
+@end defvar
+
+@defvar blend
+Alpha blending.
+@end defvar
+
+@defvar add
+Additive blending.
+@end defvar
+
+@defvar mul
+Multiplicative blending.
+@end defvar
+
+@defvar mod
+Color modulation.
+@end defvar
+
+Custom blend modes can be created using the @code{make-blend-mode}
+procedure.
+
+@deffn {Procedure} make-blend-mode src-color-factor dst-color-factor color-operation src-alpha-factor dst-alpha-factor alpha-operation
+Return a new custom blend mode for renderers.
+
+@var{src-color-factor} applies to the red, green, and blue components
+of the source pixels.
+
+@var{dst-color-factor} applies to the red, green, and blue components of the
+destination pixels.
+
+@var{color-operation} specifies how to combine the red, green, and blue
+components of the source and destination pixels.
+
+@var{src-alpha-factor} applies to the alpha component of the source pixels.
+
+@var{dst-alpha-factor} applies to the alpha component of the destination
+pixels.
+
+@var{alpha-operation} specifies how to combine the alpha component of the
+source and destination pixels.
+
+Possible values for factors are @code{zero}, @code{one},
+@code{src-color}, @code{one-minus-src-color}, @code{src-alpha},
+@code{one-minus-src-alpha}, @code{dst-color},
+@code{one-minus-dst-color}, @code{dst-alpha}, and @code{one-minus-dst
+alpha}.
+
+Possible values for operations are @code{add}, @code{subtract},
+@code{rev-subtract}, @code{minimum}, and @code{maximum}.
+@end deffn
+
+@deffn {Procedure} blend-mode? obj
+Return @code{#t} if @var{obj} is a blend mode object.
+@end deffn
+
+@deffn {Procedure} blend-mode-src-color-factor blend-mode
+Return the source red, green, and blue channel blend factor for
+@var{blend-mode}.
+@end deffn
+
+@deffn {Procedure} blend-mode-dst-color-factor blend-mode
+Return the destination red, green, and blue channel blend factor for
+@var{blend-mode}.
+@end deffn
+
+@deffn {Procedure} blend-mode-color-operation blend-mode
+Return the red, green, and blue channel blend operation for
+@var{blend-mode}.
+@end deffn
+
+@deffn {Procedure} blend-mode-src-alpha-factor blend-mode
+Return the source alpha channel blend factor for @var{blend-mode}.
+@end deffn
+
+@deffn {Procedure} blend-mode-dst-alpha-factor blend-mode
+Return the destination alpha channel blend factor for
+@var{blend-mode}.
+@end deffn
+
+@deffn {Procedure} blend-mode-alpha-operation blend-mode
+Return the alpha channel blend operation for @var{blend-mode}.
+@end deffn
+
+@node Images
+@section Images
+
+@example
+(use-modules (sdl2 image))
+@end example
+
+@deffn {Procedure} image-init
+Initialize dynamically loaded image libraries.
+@end deffn
+
+@deffn {Procedure} image-quit
+Clean up dynamically loaded image libraries.
+@end deffn
+
+@deffn {Procedure} load-image file
+Load the image in @var{file} and return an SDL surface.
+@end deffn
+
+@deffn {Procedure} save-png surface file
+Save @var{surface} to @var{file} as a PNG formatted image.
+@end deffn
+
+@node Sound
+@section Sound
+
+@example
+(use-modules (sdl2 mixer))
+@end example
+
+@defvr {Scheme Variable} %default-frequency
+@end defvr
+
+@defvr {Scheme Variable} %default-format
+@end defvr
+
+@defvr {Scheme Variable} %default-chunk-size
+@end defvr
+
+@deffn {Procedure} mixer-init [#:optional formats='(flac mod modplug mp3 ogg fluidsynth)]
+Initialize mixer library with support for @var{formats}, a list of
+symbols representing audio file formats.  Possible formats are:
+
+@itemize
+@item flac
+@item mod
+@item modplug
+@item mp3
+@item ogg
+@item fluidsynth
+@end itemize
+@end deffn
+
+@deffn {Procedure} mixer-quit
+Shutdown mixer library.
+@end deffn
+
+@deffn {Procedure} open-audio [#:frequency=%default-frequency] @
+                                     [#:format=%default-format] @
+                                     [#:stereo?=#t] @
+                                     [#:chunk-size=%default-chunk-size]
+Initialize the mixer API.  @var{frequency} specificies the sample rate in
+hertz.  When @var{stereo?} is @code{#t}, two output channels are used, otherwise
+mono output is used instead.  @var{chunk-size} specifies the number of bytes
+used per output sample.  @var{format} is a symbol that specifies the output
+sample format.  Possible values are:
+
+@itemize
+@item u8
+@item s8
+@item u16lsb
+@item s16lsb
+@item u16msb
+@item s16msb
+@item u16
+@item s16
+@item s32lsb
+@item s32msb
+@item s32
+@item f32lsb
+@item f32msb
+@item f32
+@end itemize
+@end deffn
+
+@deffn {Procedure} close-audio
+Shut down the mixer API.
+@end deffn
+
+@deffn {Procedure} chunk? c
+Return @code{#t} if @var{c} is a chunk.
+@end deffn
+
+@deffn {Procedure} load-chunk file
+Load the audio data in @var{file} and return an audio chunk.
+@end deffn
+
+@deffn {Procedure} delete-chunk! chunk
+Free the memory used for @var{chunk}.
+@end deffn
+
+@deffn {Procedure} set-chunk-volume! chunk volume
+Set the loudness of @var{chunk} to @var{volume}, an integer in the range
+[0,128].  Return the previous chunk volume setting.
+@end deffn
+
+@deffn {Procedure} play-chunk! chunk @
+                                      [#:loops=0] @
+                                      [#:channel]
+Play @var{chunk} on @var{channel}, an integer channel identifier or @code{#f}
+to use the first unreserved audio channel.  @var{chunk} will play @var{loops} +
+1 times.  Return the channel identifier that @var{chunk} is played on.
+@end deffn
+
+@deffn {Procedure} set-channel-volume! channel volume
+Set the loudness of @var{channel}, an integer channel identifier or @code{#f}
+for all channels, to @var{volume}, an integer in the range [0,128].  Return
+the previous volume of @var{channel}, or the average of all channels if
+@var{channel} is @code{#f}.
+@end deffn
+
+@deffn {Procedure} pause-channel! channel
+Pause playback on @var{channel}, an integer channel identifier, or @code{#f} to
+pause all channels.
+@end deffn
+
+@deffn {Procedure} resume-channel! channel
+Resume playback on @var{channel}, an integer channel identifier, or @code{#f} to
+resume all channels.
+@end deffn
+
+@deffn {Procedure} stop-channel! channel
+Halt playback on @var{channel}, an integer channel identifier, or @code{#f} to
+halt all channels.
+@end deffn
+
+@deffn {Procedure} channel-playing? channel
+Return @code{#t} if @var{channel} is playing.
+@end deffn
+
+@deffn {Procedure} playing-channels-count
+Return the number of channels currently playing.
+@end deffn
+
+@deffn {Procedure} channel-paused? channel
+Return @code{#t} if @var{channel} is paused.
+@end deffn
+
+@deffn {Procedure} paused-channels-count
+Return the number of channels that are paused.
+@end deffn
+
+@deffn {Procedure} music? m
+Return @code{#t} if @var{m} is music.
+@end deffn
+
+@deffn {Procedure} load-music file
+Load music from @var{file}.
+@end deffn
+
+@deffn {Procedure} delete-music! music
+Delete the memory used for @var{music}.
+@end deffn
+
+@deffn {Procedure} play-music! music [#:optional loops=1]
+Play @var{music}, repeated @var{loops} times.  @var{loops} may be @code{#f}, in
+which case the music loops indefinitely.
+@end deffn
+
+@deffn {Procedure} set-music-volume! volume
+Set music loudness to @var{volume}, an integer in the range [0,128].  Return the
+previous volume.
+@end deffn
+
+@deffn {Procedure} music-volume
+Return the music volume.
+@end deffn
+
+@deffn {Procedure} pause-music!
+Puase the music.
+@end deffn
+
+@deffn {Procedure} resume-music!
+Resume music playback.
+@end deffn
+
+@deffn {Procedure} rewind-music!
+Start music playback from the beginning.  Rewinding is only supported for MOD,
+OGG, MP3, and native MIDI music.
+@end deffn
+
+@deffn {Procedure} stop-music!
+Halt music playback.
+@end deffn
+
+@deffn {Procedure} music-playing?
+Return @code{#t} if music is currently playing.
+@end deffn
+
+@deffn {Procedure} music-paused?
+Return @code{#t} if music is currently paused.
+@end deffn
+
+@node Fonts
+@section Fonts
+
+@example
+(use-modules (sdl2 ttf))
+@end example
+
+@deffn {Procedure} ttf-init
+Initialize the TTF system.
+@end deffn
+
+@deffn {Procedure} ttf-quit
+Shut down and clean up the TTF system.
+@end deffn
+
+@deffn {Procedure} load-font file point-size
+Load TTF font from @var{file} and return a new font object whose glyph size is
+@var{point-size}.
+@end deffn
+
+@deffn {Procedure} delete-font! font
+Delete the memory allocated for @var{font}.
+@end deffn
+
+@deffn {Procedure} font-height font
+Return the maximum height of @var{font}.
+@end deffn
+
+@deffn {Procedure} font-ascent font
+Return the maximum pixel ascent of all glyphs in @var{font}.  This can
+also be interpreted as the distance from the top of the font to the
+baseline.
+@end deffn
+
+@deffn {Procedure} font-descent font
+Return the maximum pixel descent of all glyphs in @var{font}.  This
+can also be interpreted as the distance from the baseline to the
+bottom of the font.
+@end deffn
+
+@deffn {Procedure} font-line-skip font
+Return the recommended pixel height of a line of text using
+@var{font}.
+@end deffn
+
+@deffn {Procedure} font-size-text font text
+Return 2 values for the resulting surface size of the string
+@var{text} using @var{font}.
+@end deffn
+
+@deffn {Procedure} font-glyph-index font char
+Return the index of the glyph for @var{char} in @var{font}, or
+@code{#f} if @var{char} is not present.
+@end deffn
+
+@deffn {Procedure} font-glyph-metrics font char
+Return values for the metrics of @var{char} in @var{font}: min x, max
+x, min y, max y, and advance.
+@end deffn
+
+@deffn font-style font
+Return the rendering style of @var{font} as a list that may contain
+any of the following symbols:
+
+@itemize
+@item @code{bold}
+@item @code{italic}
+@item @code{underline}
+@item @code{strikethrough}
+@end itemize
+
+The empty list is returned if none of the above styles are applied.
+@end deffn
+
+@deffn font-set-style! font style
+Set the rendering style of @var{font} to @var{style}, a list that may
+contain any of the following symbols:
+
+@itemize
+@item @code{bold}
+@item @code{italic}
+@item @code{underline}
+@item @code{strikethrough}
+@end itemize
+
+The empty list means that none of the above stylings will be used.
+@end deffn
+
+@deffn {Procedure} render-font-solid font text color
+Render @var{text}, a UTF-8 encoded string, using @var{font} and @var{color}, the
+foreground color, and return a surface containing the results.
+@end deffn
+
+@deffn {Procedure} render-font-blended font text color
+Render @var{text}, a UTF-8 encoded string, using @var{font} and @var{color}, the
+foreground color, and return a high-quality alpha-blended surface containing the
+results.
+@end deffn
+
+@node Hints
+@section Hints
+
+@example
+(use-modules (sdl2 hints))
+@end example
+
+@deffn {Procedure} get-hint hint
+Get the string value of @var{hint} or @code{#f} if if @var{hint} is unset.
+@end deffn
+
+@deffn {Procedure} set-hint! hint value [priority]
+Set @var{hint} to @var{value} at priority level @var{priority}.
+@var{priority} can be one of the symbols @code{default}, @code{normal} or
+@code{override} and defaults to @code{normal}.
+@var{value} will automatically be converted to a string if it is a boolean
+or a number.
+@end deffn
+
+Inside SDL2, the macro @code{SDL_HINT_SOME_HINT} corresponds to the
+environment variable @env{SDL_SOME_HINT}.  In Guile-SDL2, this hint would be
+represented by the symbol @code{some-symbol.}

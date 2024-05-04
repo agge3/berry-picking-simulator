@@ -1,0 +1,22 @@
+--2024-05-03 14:06:36--  http://wget/
+Resolving wget... failed: Temporary failure in name resolution.
+wget: unable to resolve host address ‘wget’
+--2024-05-03 15:00:52--  https://files.dthompson.us/releases/guile-sdl2/guile-sdl2-0.8.0.tar.gz
+Resolving files.dthompson.us... 64.225.6.170
+Connecting to files.dthompson.us|64.225.6.170|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 280686 (274K) [text/plain]
+Saving to: ‘guile-sdl2-0.8.0.tar.gz.1’
+
+     0K .......... .......... .......... .......... .......... 18%  624K 0s
+    50K .......... .......... .......... .......... .......... 36%  618K 0s
+   100K .......... .......... .......... .......... .......... 54%  657K 0s
+   150K .......... .......... .......... .......... .......... 72%  848K 0s
+   200K .......... .......... .......... .......... .......... 91% 3.54M 0s
+   250K .......... .......... ....                            100% 15.3M=0.3s
+
+2024-05-03 15:00:52 (880 KB/s) - ‘guile-sdl2-0.8.0.tar.gz.1’ saved [280686/280686]
+
+FINISHED --2024-05-03 15:00:52--
+Total wall clock time: 54m 16s
+Downloaded: 1 files, 274K in 0.3s (880 KB/s)

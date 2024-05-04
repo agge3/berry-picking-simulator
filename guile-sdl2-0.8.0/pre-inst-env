@@ -1,0 +1,32 @@
+#!/bin/sh
+
+# guile-sdl2 --- FFI bindings for SDL2
+# Copyright © 2015 David Thompson <davet@gnu.org>
+#
+# This file is part of guile-sdl2.
+#
+# Guile-sdl2 is free software; you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation; either version 3 of the
+# License, or (at your option) any later version.
+#
+# Guile-sdl2 is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with guile-sdl2.  If not, see
+# <http://www.gnu.org/licenses/>.
+
+abs_top_srcdir="`cd "/home/agge/projects/guile/guile-sdl2-0.8.0" > /dev/null; pwd`"
+abs_top_builddir="`cd "/home/agge/projects/guile/guile-sdl2-0.8.0" > /dev/null; pwd`"
+
+GUILE_LOAD_COMPILED_PATH="$abs_top_builddir${GUILE_LOAD_COMPILED_PATH:+:}$GUILE_LOAD_COMPILED_PATH"
+GUILE_LOAD_PATH="$abs_top_builddir:$abs_top_srcdir${GUILE_LOAD_PATH:+:}:$GUILE_LOAD_PATH"
+export GUILE_LOAD_COMPILED_PATH GUILE_LOAD_PATH
+
+PATH="$abs_top_builddir/scripts:$PATH"
+export PATH
+
+exec "$@"
