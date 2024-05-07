@@ -152,9 +152,8 @@
                   (handle-event event player-rect)
                   
                   ;(display "Should I spawn a berry?\n")
-                  ; REMARK: berries have a 1/20 chance to spawn
                   (cond
-                    ((eq? 1 (random 21))
+                    ((eq? 1 (random 20))
                     ; spawn berry and add to berries list
                     (let* ((berry-width (random WIDTH)) (berry-height (random HEIGHT))
                            ; all berries are 16x16px
@@ -206,18 +205,171 @@
                            ))
                         ))))
 
-                  ; TODO: kill-berries needs to be properly implemented
-                  ;(set! berries (kill-berries berries player-rect))
+                  (set! berries (kill-berries berries player-rect))
                   (draw ren player-texture player-rect berries)
                   (loop (SDL:poll-event))
                   )))
 
-            ; TODO: kill-berries needs to be properly implemented
-            ;(set! berries (kill-berries berries player-rect))
+            (set! berries (kill-berries berries player-rect))
             (draw ren player-texture player-rect berries)
             ;(display berries)
             (loop (SDL:poll-event))))
 ))))))
 
-;; entry point
 (main)
+
+;(define (random-berry-spawn list ren width height)
+;  ; 1/19 chance to spawn berry
+;  (if (eq? 1 (random 20))
+;    ; spawn berry and add to berries list
+;    (let* ((berry-width (random width)) (berry-height (random height))
+;           ; 8-bit color depth
+;           (surface (SDL:make-rgb-surface berry-width berry-height 8))
+;           ; berries are 26x26px
+;           (rect (SDL:make-rect berry-width berry-height 26 26)) 
+;      ;(color (random 5))
+;      ;(bytevector-s32-set! bv 0 
+;      ;(cond
+;      ;  ((eq? color 0)
+;      ;   ; SEE: ffi:SDL_MapRGBA to make SDL color
+;      ;   (display ("I'm making a blue berry...\n"))
+;      ;   (SDL:fill-rect surface rect #x0000FF)
+;      ;   )
+;      ;  (else
+;      ;    (SDL:fill-rect surface rect #xFFFFFF)))
+;
+;      (append! list (SDL:make-rect (random width) (random height) 26 26))
+;      (display "I spawned a berry!\n")
+;)))
+
+;(define (init width height)
+;  (display "Initializing...\n")
+;  (SDL:sdl-init '(video events))
+;  ; print SDL version
+;  (display "SDL version: ") (display (SDL:sdl-version)) (newline)
+;  (let ((win (SDL:make-window #:title "Guiled Game"
+;                              #:position (list ffi:SDL_WINDOWPOS_CENTERED
+;                                               ffi:SDL_WINDOWPOS_CENTERED)
+;                              #:size (list width height) 
+;                              #:show? #t)))
+;    (let ((ren (SDL:make-renderer win '(accelerated vsync))))
+;      (SDL:set-renderer-draw-color! ren 255 255 255 255)
+;      ren
+;      )))
+              
+            ;(let ((event (SDL:poll-event)))
+            ;    (if event 
+            ;      (if ((SDL:quit-event? event))
+            ;        (display "Exit game.\n")
+            ;        (close-window! window))
+            ;      (else 
+            ;        (handle-events event)))
+            ;    (render ren)
+            ;)))))))))
+;          (lambda (ren)
+;            (let ((event (SDL:poll-event)))
+;              (if event
+;                (if (SDL:quit-event? event) (close-window! window))
+;                (handle-events event))
+;              (render ren)
+;              ))))
+;    (SDL:sdl-quit)
+;))
+
+;(define (init width height)
+;  (display "Initializing...\n")
+;  (SDL:sdl-init '(video events))
+;  (let ((win (SDL:make-window #:title "Guiled Game"
+;                              #:position (list ffi:SDL_WINDOWPOS_CENTERED
+;                                               ffi:SDL_WINDOWPOS_CENTERED)
+;                              #:size (list width height) 
+;                              #:show? #t)))
+;    (let ((ren (SDL:make-renderer win '(accelerated vsync))))
+;      (SDL:set-renderer-draw-color! ren 255 255 255 255)
+;      ren
+;      )))
+
+;(define (main)
+;  (let (
+;        ;(src-rect (SDL:make-rect 0 0 0 0))
+;        ;(dst-rect (SFL:make-rect 0 0 0 0))
+;        (width 640) (height 480))
+;    (catch #t
+;           (lambda ()
+;             (let* ((ren (init width height)))
+;               (let loop ((event SDL:poll-event)))
+;                 (if event
+;                   (cond
+;                     ((SDL:quit-event? event)
+;
+;                   (handle-events event)
+;                   (render ren)
+;                      ))
+;             (display "Exiting game loop...\n")
+;             )
+;           (lambda (key . args)
+;             (format #t "Have exception '~a' with detail info: ~{ ~A ~}~%" key args))
+;           )
+;    (display "Exiting error catching...\n")
+;    )
+;  (SDL:sdl-quit)
+;)
+;
+;(main)
+  
+;(define (hello-sdl)
+;  (catch 'sdl-error
+;         (lambda ()
+;           (SDL:sdl-init '(video))
+;           (let ((win (SDL:make-window #:title "Guiled Game"
+;                                          #:position 
+;                                          (list ffi:SDL_WINDOWPOS_CENTERED
+;                                                ffi:SDL_WINDOWPOS_CENTERED)
+;                                          #:size '(640 480)
+;                                          #:show? #t)))
+;             ; (make-renderer win #:flags='(see doc 3.7 rendering))
+;             (let ((ren (SDL:make-renderer win)))
+;               (SDL:set-renderer-draw-color! ren 255 0 0 255)
+;               (SDL:clear-renderer ren)
+;               (SDL:present-renderer ren)
+;               (sleep 5)
+;               )))
+;  (SDL:sdl-quit)
+;  (display "End of SDL!\n")
+;  (sleep 5)
+;)
+;
+;(hello-sdl)
+
+;(define (draw render)
+;  (let* ((surface (make-rgb-surface(640 480 8)) ; res: (640,480), bit-depth: 8
+;                  (color r 255)
+;                  (color g 0)
+;                  (color b 0)
+;                  (color a 255))
+;         (texture (surface->texture render surface)))
+;    (clear-renderer render)
+;    (render-copy render texture)
+;    (present-renderer render)
+;    (sleep 2)))
+
+
+;(call-with-window (make-window)
+;                  (lambda (window)
+;                    (call-with-renderer (make-renderer window) draw))
+;
+;(sdl-quit)
+
+; decrease window size - unimplemented
+           ;((or (eq? key 'keypad-minus)
+           ;     (eq? key 'minus))
+           ; (when (and (> (SDL:rect-w d-rect) 5) (> (SDL:rect-h d-rect) 5))
+           ;   (display "Window size decreased.\n")
+           ;   (SDL:rect-w-set! d-rect (- (SDL:rect-w d-rect) 5))
+           ;   (SDL:rect-h-set! d-rect (- (SDL:rect-h d-rect) 5))))
+           ;((or (eq? key 'keypad-plus)
+           ;     (and (eq? key 'equals) (member 'left-shift map)))
+           ; (begin
+           ;   (display "Window size increased.\n")
+           ;   (SDL:rect-w-set! d-rect (+ (SDL:rect-w d-rect) 5))
+           ;   (SDL:rect-h-set! d-rect (+ (SDL:rect-h d-rect 5)))))
