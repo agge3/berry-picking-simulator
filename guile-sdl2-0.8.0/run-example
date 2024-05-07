@@ -1,4 +1,0 @@
-#!/bin/sh
-
-cd examples
-../pre-inst-env guile $1.scm

@@ -10,7 +10,12 @@
               (srfi srfi-9)
               (system foreign))
 
-(define (handle-event event)
+;(define (player-mover))
+
+; seed random state from OS
+(set! *random-state* (random-state-from-platform))
+
+(define (handle-event event player-rect)
   ;(display "Handling events...\n")
   (cond
     ;((SDL:quit-event? event)
@@ -27,16 +32,20 @@
 
      ; handle key pressed
      (let ((key (SDL:keyboard-event-scancode event))
-          (mod (SDL:keyboard-event-modifiers event)))
+           (mod (SDL:keyboard-event-modifiers event)))
        (cond
          ((eq? key 'up)
-          (display "Move UP\n"))
+          (display "Move UP\n")
+          (SDL:set-rect-y! player-rect (- (SDL:rect-y player-rect) 7)))
          ((eq? key 'down)
-          (display "Move DOWN\n"))
+          (display "Move DOWN\n")
+          (SDL:set-rect-y! player-rect (+ (SDL:rect-y player-rect) 7)))
          ((eq? key 'left)
-          (display "Move LEFT\n"))
+          (display "Move LEFT\n")
+          (SDL:set-rect-x! player-rect (- (SDL:rect-x player-rect) 7)))
          ((eq? key 'right)
-          (display "Move RIGHT\n"))        
+          (display "Move RIGHT\n")        
+          (SDL:set-rect-x! player-rect (+ (SDL:rect-x player-rect) 7)))
        )))
 
     ; keyboard-up is key released
@@ -52,28 +61,28 @@
   (SDL:present-renderer ren)
 )
 
-; AUTHOR: define-wrapped-pointer-type is from github.com
-(define-wrapped-pointer-type <rect>
-  rect?
-  wrap-rect unwrap-rect
-  (lambda (r port)
-    (format port "#<rect ~x>: x:~d, y:~d, w:~d, h:~d"
-            (pointer-address (unwrap-rect r))
-            (rect-x r) (rect-y r)
-            (rect-w r) (rect-h r))))
-
 ; draw (with texture(s)) render procedure
-(define (draw ren texture)
+(define (draw ren texture rect list)
   (SDL:clear-renderer ren)
-  (let ((s-rect (SDL:make-rect 0 0 0 0))
-       (d-rect (SDL:make-rect 0 0 0 0)))
-    (SDL:set-rect-x! d-rect 20)
-    (SDL:set-rect-y! d-rect 20)
-    (SDL:set-rect-width! d-rect 20)
-    (SDL:set-rect-height! d-rect 20)
-  (SDL:render-copy ren texture #:srcrect (unwrap-rect s-rect))
-  (SDL:present-renderer ren))
+  (SDL:render-copy ren texture #:dstrect rect)
+  (SDL:present-renderer ren)
 )
+
+(define (spawn-berry x y)
+  (let ((height 26) (width 26))
+    (SDL:make-rect x y height width)))
+
+;(define (kill-berry berry-rect))
+
+(define (random-spawn-berry list width height)
+  ; 1/10 chance to spawn berry
+  (if (equals? 10 (random 10))
+    ; spawn berry and return berry rect
+    (let ((rand-x (random width))   ; random berry x position
+          (rand-y (random height))  ; random berry y position
+          (berry-width 26)
+          (berry-height 26))
+      (append! list (SDL:make-rect rand-x rand-y berry-width berry-height)))))
 
 ;(define (update)
 ;  ; to be implemented
@@ -99,34 +108,35 @@
         ; with hardware acceleration, with vsync
         (SDL:call-with-renderer (SDL:make-renderer window '(accelerated vsync))
           (lambda (ren) (
+            ; scoped initialization context for game to run in
             (let* ((player-surface  (SDL:load-image "player.png"))
                    (player-texture  (SDL:surface->texture ren player-surface))
-                   (player-s-rect   (SDL:make-rect 0 0 0 0))
-                   (player-d-rect   (SDL:make-rect 1 1 1 1)))
+                   ; (make-rect x y w h): (x, y) is player spawn position
+                   (player-rect     (SDL:make-rect 320 10 52 52))
+                   )
             (display "Run game.\n")
             (render ren)
 
+            (let ((berries list))
             (let loop ((event (SDL:poll-event)))
               (if event
                 (cond
                   ((SDL:quit-event? event)
                    (display "Exit game.\n")
-                   (close-window! window)
+                   ; NOTE: break out of recursion, no SDL cleanup
+                   (exit)
                    )
                   (else
                     (display "Handling events.\n")
-                    (handle-event event)
-                    (draw ren player-texture)
+                    (handle-event event player-rect)
+                    (draw ren player-texture player-rect)
                     (display "Done handling events.\n")
                     (loop (SDL:poll-event))
-                  )))
+                    )))
               ;(display "No events to handle.\n")
-              (draw ren player-texture)
+              (draw ren player-texture player-rect)
               (loop (SDL:poll-event)))
-
-            ))))))
-    (SDL:sdl-quit)
-))
+))))))))
 
 (main)
 
