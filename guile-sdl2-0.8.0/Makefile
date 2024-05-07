@@ -105,9 +105,9 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-#am__append_1 = \
-#  sdl2/bindings/image.scm			\
-#  sdl2/image.scm
+am__append_1 = \
+  sdl2/bindings/image.scm			\
+  sdl2/image.scm
 
 #am__append_2 = \
 #  sdl2/bindings/ttf.scm				\
@@ -303,13 +303,13 @@ PKG_CONFIG = /usr/bin/pkg-config
 PKG_CONFIG_LIBDIR = 
 PKG_CONFIG_PATH = 
 SDL2_CFLAGS = -I/usr/include/SDL2 -D_REENTRANT
-SDL2_IMAGE_LIBDIR = 
+SDL2_IMAGE_LIBDIR = /usr/lib64
 SDL2_LIBDIR = /usr/lib64
 SDL2_LIBS = -lSDL2
 SDL2_MIXER_LIBDIR = 
 SDL2_TTF_LIBDIR = 
-SDL2_image_CFLAGS = 
-SDL2_image_LIBS = 
+SDL2_image_CFLAGS = -I/usr/include/SDL2 -D_REENTRANT -I/usr/include/libpng16
+SDL2_image_LIBS = -lSDL2_image -lSDL2
 SDL2_mixer_CFLAGS = 
 SDL2_mixer_LIBS = 
 SDL2_ttf_CFLAGS = 
