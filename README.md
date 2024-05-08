@@ -1,4 +1,8 @@
-# bps (Berry Picking Simulation)
-bps is a GNU Guile (and Guile-SDL2) Scheme game.<br>
-Pick berries, get healthier. Pick berries, maybe die.<br>
-Have fun. I made it to learn GNU Guile and SDL2.
+# bps (Berry Picking Simulator)
+bps is a Scheme game.<br>
+Pick berries.<br><br>
+Have fun. I made it to learn GNU Guile and SDL2.<br>
+## Dependencies
+GNU Guile 3.0<br>
+guile-sdl2 main branch<br>
+https://git.dthompson.us/guile-sdl2.git
